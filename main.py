@@ -12,10 +12,13 @@ def main():
         print(f'{Fore.RED}Set login email and password to .env file{Fore.RESET}')
         sys.exit(0)
 
-    # Instantiate UdemyDownloader
     downloader = UdemyDownloader()
 
-    sk = input('Search Keyword: ')
+    sk = input('Search Keyword (input "all" to list up your subscribed courses): ').strip()
+
+    if sk == 'all':
+        sk = None
+
     subscribed_courses = downloader.fetch_subscribed_courses(search_keyword=sk)
 
     if subscribed_courses.course_count == 0:
@@ -27,15 +30,14 @@ def main():
     else:
         print(f'{Fore.YELLOW}[0]{Fore.RESET}\tCancel to download')
 
-    cid = input(f'Select {Fore.YELLOW}[COURSE ID]{Fore.RESET} to download: ')
+    cid = int(input(f'Select {Fore.YELLOW}[COURSE ID]{Fore.RESET} to download: '))
     if cid == 0:
         print('Bye!')
         sys.exit(0)
 
-    # Get contents list of course, not downloading.
-    course = subscribed_courses.find_course_by_course_id(course_id=int(cid))
+    course = subscribed_courses.find_course_by_course_id(course_id=cid)
 
-    answer = input(f'Do you download {Fore.YELLOW}"{course.title}"{Fore.RESET}, are you sure? [y/N]: ').lower()
+    answer = input(f'Do you download {Fore.YELLOW}"{course.title}"{Fore.RESET}, are you sure? [y/N]: ').strip().lower()
 
     if answer not in ['y', 'yes']:
         print(f'{Fore.RED}Download is stopped{Fore.RESET}')
