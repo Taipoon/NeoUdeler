@@ -1,0 +1,8 @@
+*
+!.gitignore
+!.env.example
+!main.py
+!neoudeler.py
+!requirements.txt
+!LICENSE
+!README.md
