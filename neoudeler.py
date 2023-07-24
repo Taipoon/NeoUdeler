@@ -588,20 +588,14 @@ class UdemyDownloader(object):
     def _create_course_list(self, results: list[dict]) -> list[Course]:
         courses: list[Course] = []
         for result in results:
-            course_id = result.get('id')
-            title = result.get('title')
-            url_path = result.get('url')
-            image_480_270_url = result.get('image_480x270')
-            locale_title = result.get('locale').get('title')
-
             visible_instructors = self._create_visible_instructors_list(result.get('visible_instructors'))
 
             courses.append(Course(
-                course_id=course_id,
-                title=title,
-                url=self._config.udemy_base_url + url_path,
-                image_480_270_url=image_480_270_url,
-                locale_title=locale_title,
+                course_id=result.get('id'),
+                title=result.get('title'),
+                url=self._config.udemy_base_url + result.get('url'),
+                image_480_270_url=result.get('image_480x270'),
+                locale_title=result.get('locale').get('title'),
                 visible_instructors=visible_instructors,
             ))
         return courses
