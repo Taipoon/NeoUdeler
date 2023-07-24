@@ -15,9 +15,7 @@ def main():
     downloader = UdemyDownloader()
 
     sk = input('Search Keyword (input "all" to list up your subscribed courses): ').strip()
-
-    if sk == 'all':
-        sk = None
+    sk = sk if sk != 'all' else None
 
     subscribed_courses = downloader.fetch_subscribed_courses(search_keyword=sk)
 

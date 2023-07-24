@@ -235,7 +235,8 @@ class Course(object):
             'fields[lecture]': 'title,description,asset,supplementary_assets',
         }
 
-        response = requests.get(config.udemy_base_url + api_path, params=params,
+        response = requests.get(config.udemy_base_url + api_path,
+                                params=params,
                                 cookies={'access_token': config.access_token})
         check_response(response)
 
@@ -247,19 +248,15 @@ class Course(object):
     def _create_course_contents_list(self, results: list[dict]) -> list[CourseContent]:
         course_contents = []
         for result in results:
-            content_type = CourseContentType(result.get('_class'))
 
-            asset_exists = result.get('asset', None) is not None
-            supplementary_assets_exists = result.get('supplementary_assets', None) is not None
-
-            if asset_exists:
-                asset_result = result.get('asset')
-                asset = self._create_asset(asset_result)
+            asset_results = result.get('asset')
+            if asset_results is not None:
+                asset = self._create_asset(asset_results)
             else:
                 asset = None
 
-            if supplementary_assets_exists:
-                supplementary_assets_results = result.get('supplementary_assets')
+            supplementary_assets_results = result.get('supplementary_assets')
+            if supplementary_assets_results is not None:
                 supplementary_assets = self._create_supplementary_assets_list(supplementary_assets_results)
             else:
                 supplementary_assets = None
@@ -267,7 +264,7 @@ class Course(object):
             course_contents.append(CourseContent(
                 course_id=self.course_id,
                 course_content_id=result.get('id'),
-                course_content_type=content_type,
+                course_content_type=CourseContentType(result.get('_class')),
                 title=result.get('title'),
                 description=result.get('description'),
                 asset=asset,
@@ -278,17 +275,15 @@ class Course(object):
     def _create_supplementary_assets_list(self, results: list[dict]) -> SupplementaryAssets:
         assets = []
         for result in results:
-            stream_urls_exists = result.get('stream_urls', None) is not None
-            download_urls_exists = result.get('download_urls', None) is not None
 
-            if stream_urls_exists:
-                stream_urls_result = result.get('stream_urls')
+            stream_urls_result = result.get('stream_urls')
+            if stream_urls_result is not None:
                 stream_urls = self._create_stream_urls(stream_urls_result)
             else:
                 stream_urls = None
 
-            if download_urls_exists:
-                download_urls_result = result.get('download_urls')
+            download_urls_result = result.get('download_urls')
+            if download_urls_result is not None:
                 download_urls = self._create_download_urls(download_urls_result)
             else:
                 download_urls = None
@@ -305,18 +300,17 @@ class Course(object):
         return SupplementaryAssets(supplementary_assets=assets)
 
     def _create_asset(self, result: dict) -> Asset:
-        stream_urls_results = result.get('stream_urls', None)
-        download_urls_results = result.get('download_urls', None)
-
-        if stream_urls_results is None:
-            stream_urls = None
-        else:
+        stream_urls_results = result.get('stream_urls')
+        if stream_urls_results is not None:
             stream_urls = self._create_stream_urls(stream_urls_results)
-
-        if download_urls_results is None:
-            download_urls = None
         else:
+            stream_urls = None
+
+        download_urls_results = result.get('download_urls')
+        if download_urls_results is not None:
             download_urls = self._create_download_urls(download_urls_results)
+        else:
+            download_urls = None
 
         asset = Asset(
             asset_id=result.get('id'),
@@ -331,8 +325,7 @@ class Course(object):
 
     @staticmethod
     def _create_stream_urls(result: dict) -> StreamUrls | None:
-        video_exists = result.get('Video', None) is not None
-        if not video_exists:
+        if result.get('Video') is None:
             return None
 
         videos = []
@@ -346,8 +339,7 @@ class Course(object):
 
     @staticmethod
     def _create_download_urls(result: dict) -> DownloadUrls | None:
-        file_exists = result.get('File', None) is not None
-        if not file_exists:
+        if result.get('File') is None:
             return None
 
         files = []
@@ -528,10 +520,8 @@ class UdemyDownloader(object):
         response_get = requests.get(self._config.udemy_base_url)
         check_response(response_get)
 
-        # CSRFトークンを取得
         csrf_token = response_get.cookies.get('csrftoken')
 
-        # 直前のGETリクエストで取得したCSRFトークンを利用してPOSTリクエストを作成する
         post_url = 'https://kaishi-pu.udemy.com/join/login-popup/?next=organization/home'
         payload = {
             'email': self._config.email,
@@ -546,11 +536,10 @@ class UdemyDownloader(object):
             'csrftoken': csrf_token,
             'ud_locale': 'ja_JP',
         }
-        # ログインを実行する
+
         response_post = requests.post(post_url, data=payload, cookies=cookies, headers=headers)
         check_response(response_post)
 
-        # 200 OK だが所定時間内に一定のリクエストを送信するとエラーが返却される
         self._check_too_many_request_error(response_post)
 
         self._config.access_token = response_post.cookies.get('access_token')
