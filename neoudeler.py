@@ -405,7 +405,7 @@ class Course(object):
                             download(url=video.file_url,
                                      path=os.path.join(save_dir,
                                                        chapter_dir,
-                                                       f'{lecture_number}_video_{num}.mp4'))
+                                                       f'{supplementary_asset.title}'))
 
                     if supplementary_asset.download_urls is not None:
                         files = supplementary_asset.download_urls.files
@@ -413,7 +413,7 @@ class Course(object):
                             download(url=file.file_url,
                                      path=os.path.join(save_dir,
                                                        chapter_dir,
-                                                       f'{lecture_number}_file_{num}_{file.label}'),
+                                                       f'{supplementary_asset.title}'),
                                      chunking=False)
 
     @staticmethod
@@ -581,9 +581,6 @@ class UdemyDownloader(object):
 
         self._course_list = SubscribedCourseList(course_count=count, courses=courses, search_keyword=search_keyword)
         return self._course_list
-
-    def find_course_by_course_id(self, course_id: int):
-        return self._course_list.find_course_by_course_id(course_id)
 
     def _create_course_list(self, results: list[dict]) -> list[Course]:
         courses: list[Course] = []
