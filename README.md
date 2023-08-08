@@ -2,6 +2,10 @@
 
 Command-line video downloader for Udemy Business, porting only the download functionality of FaisalUmair/udemy-downloader-gui.
 
+# Requirements for running NeoUdeler
+
+- python 3.11 or higher
+
 # How to set up
 
 ### Clone of this project
