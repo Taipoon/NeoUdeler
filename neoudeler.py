@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(
     filename='neo_udeler.log',
     level=logging.ERROR,
-    datefmt='%Y/%m%d %H:%I:%S %p',
+    datefmt='%Y/%m/%d %H:%I:%S %p',
 )
 
 
