@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 logging.basicConfig(
     filename='neo_udeler.log',
-    level=logging.DEBUG,
+    level=logging.ERROR,
     datefmt='%Y/%m%d %H:%I:%S %p',
 )
 
@@ -38,8 +38,8 @@ def check_response(response: requests.Response):
     :param response: HTTP レスポンス
     :return:
     """
-    write_log(response)
     if response.status_code != 200:
+        write_log(response)
         raise NeoUdelerError(f'Error with status code: {response.status_code} at {response.url}')
 
 
