@@ -425,9 +425,13 @@ class Course(object):
     def _sanitize_filename(filename: str) -> str:
         filename = pathvalidate.sanitize_filepath(filename)
 
-        invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
+        invalid_chars = ['<', '>', ':', '"', '|', '?', '*']
         for char in invalid_chars:
-            filepath = filename.replace(char, '')
+            filename = filename.replace(char, '')
+
+        slash_chars = ['/', '\\']
+        for char in slash_chars:
+            filename = filename.replace(char, '／')
 
         return filename
 
