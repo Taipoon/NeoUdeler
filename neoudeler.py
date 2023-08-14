@@ -9,6 +9,7 @@ import shutil
 from threading import Lock
 
 import dotenv
+import pathvalidate
 import requests
 
 logger = logging.getLogger(__name__)
@@ -358,7 +359,10 @@ class Course(object):
         for vi in self.visible_instructors:
             instructor_names.append(f'{vi.display_name}')
 
-        save_dir = os.path.join(dir_path, f'{today}_{self.title} - {",".join(instructor_names)}')
+        raw_dir_name = f'{today}_{self.title} - {",".join(instructor_names)}'
+        sanitized_dir_name = self._sanitize_filename(raw_dir_name)
+
+        save_dir = os.path.join(dir_path, sanitized_dir_name)
 
         if not os.path.isdir(save_dir):
             os.mkdir(save_dir)
@@ -375,7 +379,8 @@ class Course(object):
             self._print_progress(total=total, current=current)
 
             if content.is_chapter():
-                chapter_dir = f'{str(chapter_number).zfill(dirname_prefix_digits)}_{content.title}'
+                raw_chapter_dir = f'{str(chapter_number).zfill(dirname_prefix_digits)}_{content.title}'
+                chapter_dir = self._sanitize_filename(raw_chapter_dir)
 
                 if os.path.isdir(os.path.join(save_dir, chapter_dir)):
                     shutil.rmtree(os.path.join(save_dir, chapter_dir))
@@ -391,7 +396,7 @@ class Course(object):
                     download(url=video.file_url,
                              path=os.path.join(save_dir,
                                                chapter_dir,
-                                               f'{lecture_number}_{content.title}.mp4'),
+                                               f'{lecture_number}_{self._sanitize_filename(content.title)}.mp4'),
                              chunking=True)
 
                     lecture_number += 1
@@ -405,7 +410,7 @@ class Course(object):
                             download(url=video.file_url,
                                      path=os.path.join(save_dir,
                                                        chapter_dir,
-                                                       f'{supplementary_asset.title}'))
+                                                       self._sanitize_filename(f'{supplementary_asset.title}')))
 
                     if supplementary_asset.download_urls is not None:
                         files = supplementary_asset.download_urls.files
@@ -413,8 +418,18 @@ class Course(object):
                             download(url=file.file_url,
                                      path=os.path.join(save_dir,
                                                        chapter_dir,
-                                                       f'{supplementary_asset.title}'),
+                                                       self._sanitize_filename(f'{supplementary_asset.title}')),
                                      chunking=False)
+
+    @staticmethod
+    def _sanitize_filename(filename: str) -> str:
+        filename = pathvalidate.sanitize_filepath(filename)
+
+        invalid_chars = ['<', '>', ':', '"', '/', '\\', '|', '?', '*']
+        for char in invalid_chars:
+            filepath = filename.replace(char, '')
+
+        return filename
 
     @staticmethod
     def _print_progress(total: int, current: int):
