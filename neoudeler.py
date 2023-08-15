@@ -234,6 +234,7 @@ class Course(object):
             'page_size': 100_000,
             'fields[asset]': 'title,description,data,body,asset_type,captions,download_urls,stream_urls',
             'fields[lecture]': 'title,description,asset,supplementary_assets',
+            'fields[supplementary_assets]': '',
         }
 
         response = requests.get(config.udemy_base_url + api_path,
@@ -390,21 +391,25 @@ class Course(object):
                 chapter_number += 1
 
             if content.is_lecture():
+
                 if content.asset.is_video():
                     video = content.asset.stream_urls.get_mp4_by_quality('720')
-
                     download(url=video.file_url,
                              path=os.path.join(save_dir,
                                                chapter_dir,
                                                f'{lecture_number}_{self._sanitize_filename(content.title)}.mp4'),
                              chunking=True)
 
-                    lecture_number += 1
+                if content.asset.is_article():
+                    html = content.asset.body or content.asset.description
+                    with open(os.path.join(save_dir, chapter_dir, f'{content.title}.html'), 'w', encoding='utf-8') as f:
+                        f.write(html)
 
                 supplementary_assets = content.supplementary_assets.supplementary_assets
                 for supplementary_asset in supplementary_assets:
 
                     if supplementary_asset.stream_urls is not None:
+
                         videos = supplementary_asset.stream_urls.videos
                         for num, video in enumerate(videos, start=1):
                             download(url=video.file_url,
@@ -413,6 +418,7 @@ class Course(object):
                                                        self._sanitize_filename(f'{supplementary_asset.title}')))
 
                     if supplementary_asset.download_urls is not None:
+
                         files = supplementary_asset.download_urls.files
                         for num, file in enumerate(files, start=1):
                             download(url=file.file_url,
@@ -420,6 +426,8 @@ class Course(object):
                                                        chapter_dir,
                                                        self._sanitize_filename(f'{supplementary_asset.title}')),
                                      chunking=False)
+
+                lecture_number += 1
 
         print('The course has been downloaded:', os.path.abspath(save_dir))
 
