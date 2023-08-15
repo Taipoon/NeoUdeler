@@ -541,7 +541,7 @@ class UdemyDownloader(object):
 
         csrf_token = response_get.cookies.get('csrftoken')
 
-        post_url = 'https://kaishi-pu.udemy.com/join/login-popup/?next=organization/home'
+        post_url = self._config.udemy_base_url + '/join/login-popup/?next=organization/home'
         payload = {
             'email': self._config.email,
             'password': self._config.password,
