@@ -1,9 +1,12 @@
 import sys
 
+import colorama
 import dotenv
 from colorama import Fore
 
 from neoudeler import UdemyDownloader
+
+colorama.init(autoreset=True)
 
 
 def get_credentials_from_env():
