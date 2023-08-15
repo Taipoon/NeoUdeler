@@ -8,11 +8,15 @@ import os
 import shutil
 from threading import Lock
 
+import colorama
 import dotenv
 import pathvalidate
 import requests
+from colorama import Fore
 
 logger = logging.getLogger(__name__)
+
+colorama.init(autoreset=True)
 
 logging.basicConfig(
     filename='neo_udeler.log',
@@ -391,14 +395,20 @@ class Course(object):
                 chapter_number += 1
 
             if content.is_lecture():
-
                 if content.asset.is_video():
-                    video = content.asset.stream_urls.get_mp4_by_quality('720')
-                    download(url=video.file_url,
-                             path=os.path.join(save_dir,
-                                               chapter_dir,
-                                               f'{lecture_number}_{self._sanitize_filename(content.title)}.mp4'),
-                             chunking=True)
+                    if content.asset.stream_urls is None:
+                        try:
+                            video = content.asset.stream_urls.get_mp4_by_quality('720')
+                            download(url=video.file_url,
+                                     path=os.path.join(
+                                         save_dir,
+                                         chapter_dir,
+                                         f'{lecture_number}_{self._sanitize_filename(content.title)}.mp4'),
+                                     chunking=True)
+                        except AttributeError:
+                            print(
+                                f'{Fore.BLUE}[{content.title}]{Fore.RESET} is not available for download.{Fore.RESET}')
+                            print(f'Number of lecture ({lecture_number}) may be DRM-protected... :(')
 
                 if content.asset.is_article():
                     html = content.asset.body or content.asset.description

@@ -7,6 +7,24 @@ Command-line video downloader for Udemy Business, porting only the download func
 We welcome pull requests and issues for errors, 
 defects and any other concerns to improve the quality of NeoUdeler.
 
+# Precautions for Use
+
+As of 2023, Udemy has begun implementing DRM protection on various contents.
+
+NeoUdeler downloads only the subscribed courses based on the user's authentication credentials, via the sources that Udemy makes available to the user. (After being properly authenticated by Udemy, you can perform the same operation manually using a web browser. NeoUdeler simply automates this process.)
+Therefore, content from private storage and DRM-protected content cannot be downloaded.
+
+NeoUdeler does not illegally download paid courses available on Udemy.
+When using this software, it is required that NeoUdeler complies with Udemy's terms of use.
+
+# Disclaimer
+
+- This software is intended for the purpose of downloading Udemy courses for personal use only.
+- Sharing the content of subscribed courses is strictly prohibited under Udemy's terms of use.
+- **All courses on Udemy are subject to copyright infringement.**
+- NeoUdeler and the developers cannot be held responsible for any damages resulting from the use of this software.
+- By using NeoUdeler, you agree to this disclaimer.
+
 # Requirements for running NeoUdeler
 
 - python 3.11 or higher
