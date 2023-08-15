@@ -421,6 +421,8 @@ class Course(object):
                                                        self._sanitize_filename(f'{supplementary_asset.title}')),
                                      chunking=False)
 
+        print('The course has been downloaded:', os.path.abspath(save_dir))
+
     @staticmethod
     def _sanitize_filename(filename: str) -> str:
         filename = pathvalidate.sanitize_filepath(filename)
