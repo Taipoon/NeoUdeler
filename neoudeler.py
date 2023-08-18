@@ -238,7 +238,6 @@ class Course(object):
             'page_size': 100_000,
             'fields[asset]': 'title,description,data,body,asset_type,captions,download_urls,stream_urls',
             'fields[lecture]': 'title,description,asset,supplementary_assets',
-            'fields[supplementary_assets]': '',
         }
 
         response = requests.get(config.udemy_base_url + api_path,
@@ -396,19 +395,18 @@ class Course(object):
 
             if content.is_lecture():
                 if content.asset.is_video():
-                    if content.asset.stream_urls is None:
-                        try:
-                            video = content.asset.stream_urls.get_mp4_by_quality('720')
-                            download(url=video.file_url,
-                                     path=os.path.join(
-                                         save_dir,
-                                         chapter_dir,
-                                         f'{lecture_number}_{self._sanitize_filename(content.title)}.mp4'),
-                                     chunking=True)
-                        except AttributeError:
-                            print(
-                                f'{Fore.BLUE}[{content.title}]{Fore.RESET} is not available for download.{Fore.RESET}')
-                            print(f'Number of lecture ({lecture_number}) may be DRM-protected... :(')
+                    try:
+                        video = content.asset.stream_urls.get_mp4_by_quality('720')
+                        download(url=video.file_url,
+                                 path=os.path.join(
+                                     save_dir,
+                                     chapter_dir,
+                                     f'{lecture_number}_{self._sanitize_filename(content.title)}.mp4'),
+                                 chunking=True)
+                    except AttributeError:
+                        print(
+                            f'{Fore.BLUE}[{content.title}]{Fore.RESET} is not available for download.{Fore.RESET}')
+                        print(f'Number of lecture ({lecture_number}) may be DRM-protected... :(')
 
                 if content.asset.is_article():
                     html = content.asset.body or content.asset.description
